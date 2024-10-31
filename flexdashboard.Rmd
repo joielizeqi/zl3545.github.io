@@ -1,0 +1,82 @@
+---
+title: "Flexdashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(p8105.datasets)
+library(plotly)
+```
+
+```{r load_data, include = FALSE}
+data("ny_noaa")
+
+ny_noaa_tidy = ny_noaa |> 
+  separate(date, 
+           into = c("year", "month", "day"), 
+           convert = TRUE) |> 
+  mutate(tmax = as.numeric(tmax),
+         tmin = as.numeric(tmin)) 
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+A scatterplot showing the mean monthly maximum temperatures throughout the years.
+```{r scatterplot, message = FALSE, warning = FALSE}
+ny_noaa_tidy |> 
+  group_by(year, month) |> 
+  summarize(mean_tmax = mean(tmax, 
+                             na.rm = TRUE,
+                             color = year)) |> 
+  plot_ly(x = ~month,
+          y = ~mean_tmax,
+          group = ~year,
+          color = ~year,
+          type = 'scatter',
+          mode = 'lines + markers',
+          colors = "viridis", 
+          alpha = 0.5) |> 
+  layout(title = "Average Monthly Maximum Temperatures",
+         xaxis = list(title = "Month"),
+         yaxis = list(title = "Average max temperature (F)"))
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+A boxplot showing the minimum temperature by year
+```{r boxplot, message = FALSE, warning = FALSE}
+ny_noaa_tidy |> 
+  plot_ly(x = ~year, 
+          y = ~tmin, 
+          type = "box", 
+          color = ~year,
+          colors = "viridis") |> 
+  layout(title = "Minimum Temperatures by Year",
+         xaxis = list(title = "Year"),
+         yaxis = list(title = "Minimum temperature (F)"))
+```
+
+### Chart C
+A bar chart showing the number of days with snow by year
+```{r bar, message = FALSE}
+ny_noaa_tidy |> 
+  group_by(month) |> 
+  summarise(avg_snow = mean(snow, 
+                            na.rm = TRUE)) |>  
+  plot_ly(x = ~month, 
+          y = ~avg_snow, 
+          type = "bar", 
+          colors = "viridis") %>%
+  layout(title = "Average Monthly Snow",
+         xaxis = list(title = "Month"),
+         yaxis = list(title = "Average snow"))
+```
