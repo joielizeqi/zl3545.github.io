@@ -6,9 +6,7 @@ output:
     toc_float: true
 ---
 <center>
-  <h2>
-Welcome to my website!
-  </h2>
+# Welcome to my website!
 </center>
 
 <table>
